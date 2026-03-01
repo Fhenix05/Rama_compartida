@@ -20,7 +20,6 @@ export default function App() {
         <Route path="/home"      element={<Home />} />
         <Route path="/login"     element={<Login />} />
         <Route path="/registro"  element={<Registro />} />
-
         {/* Rutas protegidas */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<RutaProtegida><Dashboard /></RutaProtegida>} />
