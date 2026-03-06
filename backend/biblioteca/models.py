@@ -1,20 +1,14 @@
 from django.db import models
 
 class Usuario(models.Model):
-    ROL_CHOICES = [
-        ('Administrador', 'Administrador'),
-        ('Docente', 'Docente'),
-        ('Alumno', 'Alumno'),
-    ]
+    
     usuario_id = models.AutoField(primary_key=True)
+    matricula_id = models.CharField(max_length=20, unique=True)
     usuario_nombre = models.CharField(max_length=100)
     usuario_aPaterno = models.CharField(max_length=100)
     usuario_aMaterno = models.CharField(max_length=100, blank=True, default='')
-    usuario_nombre_acceso = models.CharField(max_length=100, unique=True)
     usuario_password = models.CharField(max_length=255)
-    usuario_clave_acceso = models.CharField(max_length=100, blank=True, default='')
-    matricula_id = models.CharField(max_length=50, blank=True, default='')
-    usuario_rol = models.CharField(max_length=20, choices=ROL_CHOICES, default='Alumno')
+    
 
     class Meta:
         db_table = 'usuarios'

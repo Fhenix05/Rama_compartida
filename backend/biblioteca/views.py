@@ -22,6 +22,11 @@ class RegistroView(APIView):
             return Response({'message': 'Usuario registrado correctamente'}, status=201)
         return Response(serializer.errors, status=400)
 
+class ListarUsuariosView(APIView):
+    def get(self, request):
+        usuarios = usuarios.objects.all()
+        serializer = UsuarioSerializer(usuarios, many=True)
+        return Response(serializer.data)
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -32,7 +37,7 @@ class LoginView(APIView):
             usuario = serializer.validated_data['usuario']
             payload = {
                 'usuario_id':  usuario.usuario_id,
-                'usuario_rol': usuario.usuario_rol,
+                
                 'exp': datetime.utcnow() + timedelta(hours=8),
             }
             token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
