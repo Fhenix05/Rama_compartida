@@ -8,6 +8,9 @@ class Usuario(models.Model):
     usuario_aPaterno = models.CharField(max_length=100)
     usuario_aMaterno = models.CharField(max_length=100, blank=True, default='')
     usuario_password = models.CharField(max_length=255)
+    # Para que al borrar un usuario se borre de la interfaz pero no de la DB
+    is_activate = models.BooleanField(default=True)
+    deleted_at = models.DateField(null=True, blank=True)
     
 
     class Meta:

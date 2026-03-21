@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny
 from django.conf import settings
 from datetime import datetime, timedelta
 import jwt
-
-from .models import Libro, Categoria
+from django.db.models import Q  # Para agilizar el filtrado
+from .models import Libro, Categoria, Usuario
 from .serializers import (
     RegistroSerializer, LoginSerializer, UsuarioSerializer,
     LibroSerializer, CategoriaSerializer
@@ -24,7 +24,7 @@ class RegistroView(APIView):
 
 class ListarUsuariosView(APIView):
     def get(self, request):
-        usuarios = usuarios.objects.all()
+        usuarios = Usuario.objects.filter(is_active=True)
         serializer = UsuarioSerializer(usuarios, many=True)
         return Response(serializer.data)
 
@@ -59,8 +59,10 @@ class LibrosView(APIView):
         libros = Libro.objects.all()
 
         if busqueda:
-            libros = libros.filter(libro_titulo__icontains=busqueda) | \
-                     libros.filter(libro_autor__icontains=busqueda)
+            libros = libros.filter(
+                Q(libro_titulo__icontains=busqueda) | 
+                Q(libro_autor__icontains=busqueda)
+            )
 
         if categoria:
             libros = libros.filter(categoria__categoria_id=categoria)
