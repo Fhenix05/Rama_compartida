@@ -1,5 +1,8 @@
 from django.db import models
 
+def limpiar_isbn(isbn):
+    return isbn.replace("-", "").replace(" ", "")
+
 class Usuario(models.Model):
     
     usuario_id = models.AutoField(primary_key=True)
@@ -9,7 +12,7 @@ class Usuario(models.Model):
     usuario_aMaterno = models.CharField(max_length=100, blank=True, default='')
     usuario_password = models.CharField(max_length=255)
     # Para que al borrar un usuario se borre de la interfaz pero no de la DB
-    is_activate = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     deleted_at = models.DateField(null=True, blank=True)
     
 
@@ -42,6 +45,11 @@ class Libro(models.Model):
     libro_descripcion = models.TextField(blank=True, default='')
     editorial = models.ForeignKey(Editorial, on_delete=models.SET_NULL, null=True, db_column='editorial_id')
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, db_column='categoria_id')
+    isbn_normalizado = models.CharField(max_length=20, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.isbn_normalizado = limpiar_isbn(self.libro_isbn)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'libros'
@@ -54,7 +62,7 @@ class Prestamo(models.Model):
         ('Vencido', 'Vencido'),
     ]
     prestamo_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, db_column='usuario_id')
     libro = models.ForeignKey(Libro, on_delete=models.CASCADE, db_column='libro_id')
     prestamo_fecha_salida = models.DateField()
     prestamo_fecha_entrega_esperada = models.DateField()
@@ -72,7 +80,7 @@ class Apartado(models.Model):
         ('Convertido', 'Convertido'),
     ]
     apartado_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, db_column='usuario_id')
     libro = models.ForeignKey(Libro, on_delete=models.CASCADE, db_column='libro_id')
     apartado_fecha = models.DateField()
     apartado_fecha_expiracion = models.DateField()
@@ -89,7 +97,7 @@ class Multa(models.Model):
     ]
     multa_id = models.AutoField(primary_key=True)
     prestamo = models.ForeignKey(Prestamo, on_delete=models.CASCADE, db_column='prestamo_id')
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, db_column='usuario_id')
     multa_monto = models.DecimalField(max_digits=10, decimal_places=2)
     multa_motivo = models.CharField(max_length=255)
     multa_estatus = models.CharField(max_length=20, choices=ESTATUS_CHOICES, default='Pendiente')

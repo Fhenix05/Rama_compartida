@@ -35,6 +35,10 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             usuario = serializer.validated_data['usuario']
+            #Validacion en el login
+            if not usuario.is_active:
+                return Response({'error': 'Usuario desactivado'}, status=403)
+            
             payload = {
                 'usuario_id':  usuario.usuario_id,
                 
